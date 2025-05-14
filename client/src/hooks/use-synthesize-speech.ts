@@ -1,7 +1,7 @@
 import { SpeechResponse } from "@/types/speech";
 import { useState } from "react";
 
-export function useSpeech() {
+export function useSynthesizeSpeech() {
   const [loading, setLoading] = useState(false);
   const [audio, setAudio] = useState<Blob | null>(null);
   const [error, setError] = useState<string | null>(null);

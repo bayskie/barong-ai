@@ -1,45 +1,47 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Book, Cpu, Send } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 import { usePrompt } from "@/hooks/use-prompt";
-import LoadingDots from "@/components/ui/loading-dots";
+import { useSynthesizeSpeech } from "@/hooks/use-synthesize-speech";
+import { Logo } from "@/components/logo";
+import { ChatMessages } from "@/components/chat-messages";
+import { PromptInput } from "@/components/prompt-input";
 import { Chat } from "@/types/chat";
-import clsx from "clsx";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 export default function Home() {
   const backsoundRef = useRef<HTMLAudioElement>(null);
   const promptRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const [model, setModel] = useState("deepseek-r1:8b");
+  const models = ["deepseek-r1:8b", "llama3.1", "llama3.2"];
 
   const [chat, setChat] = useState<Chat[]>([]);
-  const { sendPrompt, loading, response, error } = usePrompt();
+  const { sendPrompt, loading: promptLoading, response } = usePrompt();
+  const { sendSpeech, loading: speechLoading, audio } = useSynthesizeSpeech();
 
   const handlePrompt = () => {
     const prompt = promptRef.current?.value;
     if (!prompt) return;
-
     promptRef.current!.value = "";
-
     sendPrompt(prompt);
     setChat((prev) => [...prev, { role: "user", message: prompt }]);
+    setTimeout(
+      () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      50,
+    );
+  };
+
+  const handleSynthesizeSpeech = async (text: string) => {
+    await sendSpeech(text);
+    if (audio) {
+      const url = URL.createObjectURL(audio);
+      new Audio(url).play();
+    }
   };
 
   useEffect(() => {
-    if (backsoundRef.current) {
-      backsoundRef.current.volume = 0.3;
-    }
+    if (backsoundRef.current) backsoundRef.current.volume = 0.3;
   }, []);
 
   useEffect(() => {
@@ -56,8 +58,7 @@ export default function Home() {
   }, [response]);
 
   return (
-    <div className="relative container w-full px-4 py-8 md:px-40">
-      {/* Background Music */}
+    <div className="relative flex w-full flex-col items-center px-4 py-8 md:px-40">
       <audio ref={backsoundRef} autoPlay loop hidden>
         <source
           src="music/Ratu Anom - Balinese Instrumental - Sugi Art.mp3"
@@ -65,101 +66,35 @@ export default function Home() {
         />
       </audio>
 
-      {/* Header */}
-      <header className="bg-background fixed top-0 right-0 left-0 flex h-20 items-center gap-4 border-b px-4">
-        <div className="logo flex items-center gap-2">
-          <Cpu />
-          <h1 className="text-xl font-bold tracking-widest">Barong</h1>
+      <header className="bg-background fixed top-0 right-0 left-0 flex h-20 items-center gap-4 border-b px-4 shadow-xs">
+        <div className="logo relative z-20 flex items-center gap-2">
+          <Logo />
         </div>
+
+        <div className="from-background absolute inset-0 z-10 bg-gradient-to-r via-transparent to-transparent"></div>
+        <div className="absolute inset-0 z-0 bg-[url('/image/balinese-pattern-black.svg')] bg-repeat opacity-10 dark:bg-[url('/image/balinese-pattern-white.svg')]"></div>
       </header>
 
-      {/* Main */}
-      <main className="mt-20 flex w-full flex-col gap-4">
-        {/* Bot Messages */}
-        {chat.map((c, index) => (
-          <div
-            key={index}
-            className={clsx("flex flex-col gap-2", {
-              "items-end": c.role === "user",
-              "items-start": c.role === "assistant",
-            })}
-          >
-            <Card
-              className={clsx("w-fit max-w-[80%] shadow-none md:max-w-3/4", {
-                "rounded-br-none": c.role === "user",
-                "rounded-bl-none": c.role === "assistant",
-              })}
-            >
-              <CardContent>
-                <p>{c.message}</p>
-              </CardContent>
-            </Card>
-
-            {/* Relevant Docs */}
-            {c.attachments?.map((attachment, index) => (
-              <Dialog key={index}>
-                <DialogTrigger asChild>
-                  <Badge
-                    variant="secondary"
-                    className="hover:bg-secondary/90 cursor-pointer"
-                  >
-                    <Book />
-                    {attachment.title}
-                  </Badge>
-                </DialogTrigger>
-                <DialogContent className="max-h-screen overflow-y-scroll lg:max-w-screen-lg">
-                  <DialogHeader>
-                    <DialogTitle>{attachment.title}</DialogTitle>
-                  </DialogHeader>
-                  <ScrollArea className="h-[300px] w-full border-none">
-                    <p className="break-words whitespace-pre-line">
-                      {attachment.content}
-                    </p>
-                  </ScrollArea>
-                </DialogContent>
-              </Dialog>
-            ))}
-          </div>
-        ))}
-
-        {/* Loading */}
-        {loading && (
-          <div className="flex flex-col justify-start gap-2">
-            <Card className="w-fit max-w-[80%] rounded-bl-none shadow-none md:max-w-3/4">
-              <CardContent>
-                <LoadingDots />
-              </CardContent>
-            </Card>
-          </div>
-        )}
+      <main className="mt-20 flex w-3xl flex-col gap-4">
+        <ChatMessages chat={chat} promptLoading={promptLoading} />
+        <div ref={bottomRef} className="mb-60" />
       </main>
 
-      {/* Prompt Input */}
-      <div
-        className={clsx(
-          "fixed right-0 bottom-0 left-0 flex items-center gap-4 p-8 px-40",
-          {
-            "top-0": chat.length === 0,
-          },
-        )}
-      >
-        <Input
+      <footer className="fixed right-0 bottom-0 left-0 flex items-center justify-center gap-4 py-4">
+        <PromptInput
           ref={promptRef}
-          type="text"
-          className="w-full p-6"
-          placeholder="Tanya tentang satua Bali"
-          disabled={loading}
-          onKeyUp={(e) => e.key === "Enter" && handlePrompt()}
+          model={model}
+          setModel={setModel}
+          models={models}
+          handlePrompt={handlePrompt}
+          // handleSpeech={handleSpeech}
+          disabled={promptLoading}
         />
-        <Button
-          className="p-6"
-          size="icon"
-          onClick={handlePrompt}
-          disabled={loading}
-        >
-          <Send />
-        </Button>
-      </div>
+      </footer>
+
+      {/* Background */}
+      <div className="fixed right-0 bottom-0 left-0 -z-10 h-1/2 bg-[url('/image/balinese-pattern-black.svg')] bg-[length:360px] bg-repeat opacity-1.5 dark:bg-[url('/image/balinese-pattern-white.svg')]" />
+      <div className="from-background fixed right-0 bottom-0 left-0 -z-10 h-1/2 bg-gradient-to-b via-transparent to-transparent" />
     </div>
   );
 }
