@@ -28,7 +28,7 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
   ) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     return (
-      <div className="bg-card w-3xl rounded-2xl border p-4 shadow-xs">
+      <div className="bg-card z-20 w-3xl rounded-2xl border p-4 shadow-xs">
         <div className="top mb-2">
           <Input
             ref={ref}
