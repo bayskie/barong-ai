@@ -4,4 +4,5 @@ export interface Chat {
   role: "user" | "assistant";
   message: string;
   attachments?: Satua[] | null;
+  createdAt: Date;
 }
