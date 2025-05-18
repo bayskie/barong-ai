@@ -10,6 +10,8 @@ import { Chat } from "@/types/chat";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { Cpu, User } from "lucide-react";
+import Markdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 
 interface ChatMessageBubbleProps {
   chat: Chat;
@@ -52,8 +54,8 @@ export function ChatMessageBubble({
             </span>
           </div>
         </CardHeader>
-        <CardContent className="mb-2 p-0">
-          <p className="wrap-break-word">{message}</p>
+        <CardContent className="prose prose-base dark:prose-invert mb-2 max-w-none p-0">
+          <Markdown rehypePlugins={[rehypeSanitize]}>{message}</Markdown>
         </CardContent>
         <CardFooter className="justify-end p-0">
           <span className="text-muted-foreground text-xs">
