@@ -46,8 +46,8 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
         <div className="bottom flex justify-between">
           <DropdownMenu onOpenChange={setIsDropdownOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary">
-                {model}
+              <Button variant="outline">
+                <p className="w-[100px] text-left text-ellipsis">{model}</p>
                 <ChevronDown
                   className={clsx(
                     "h-4 w-4 transition-transform duration-300",
@@ -79,7 +79,7 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
               asChild
               size="icon"
               className="rounded-full"
-              variant="secondary"
+              variant="outline"
             >
               <Link href="/translate">
                 <Languages />
@@ -89,7 +89,7 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
               asChild
               size="icon"
               className="rounded-full"
-              variant="secondary"
+              variant="outline"
             >
               <Link href="/synthesize">
                 <Speech />
