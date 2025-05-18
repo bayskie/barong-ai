@@ -40,6 +40,7 @@ class Satua(BaseModel):
 
 
 class PromptRequest(BaseModel):
+    model: Optional[str]
     question: str
 
 
@@ -65,11 +66,18 @@ async def prompt_handler(req: PromptRequest):
         if "translated_content" in doc
     ])
 
-    # result = chain.invoke({"satua": satua, "question": req.question})
-    # result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
+    model_name = req.model if req.model else "llama3.2"
+
+    result = chain(req.model if req.model else "llama3.2").invoke(
+        {"satua": satua, "question": req.question})
+
+    if model_name == "gemini-2.0-flash":
+        result = result.content
+
+    result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
 
     response = PromptResponse(
-        answer="Berhasil dari API",
+        answer=result,
         relevant_docs=[
             Satua(
                 title=doc.get("title", ""),
