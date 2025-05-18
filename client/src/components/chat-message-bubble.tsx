@@ -5,13 +5,23 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import clsx from "clsx";
-import { RelevantDocDialog } from "./relevant-doc-dialog";
+import { AttachmentDialog } from "./attachment-dialog";
 import { Chat } from "@/types/chat";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { Cpu, User } from "lucide-react";
 
-export function ChatMessageBubble({ chat }: { chat: Chat }) {
+interface ChatMessageBubbleProps {
+  chat: Chat;
+  synthesizeLoading: boolean;
+  handleSynthesizeSpeech: (text: string) => void;
+}
+
+export function ChatMessageBubble({
+  chat,
+  synthesizeLoading,
+  handleSynthesizeSpeech,
+}: ChatMessageBubbleProps) {
   const { role, message, attachments } = chat;
 
   return (
@@ -53,7 +63,12 @@ export function ChatMessageBubble({ chat }: { chat: Chat }) {
       </Card>
 
       {attachments?.map((attachment, i) => (
-        <RelevantDocDialog key={i} attachment={attachment} />
+        <AttachmentDialog
+          key={i}
+          attachment={attachment}
+          synthesizeLoading={synthesizeLoading}
+          handleSynthesizeSpeech={handleSynthesizeSpeech}
+        />
       ))}
     </div>
   );

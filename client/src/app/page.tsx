@@ -3,32 +3,37 @@
 import { useEffect, useRef, useState } from "react";
 import { usePrompt } from "@/hooks/use-prompt";
 import { useSynthesizeSpeech } from "@/hooks/use-synthesize-speech";
-import { Logo } from "@/components/logo";
 import { ChatMessages } from "@/components/chat-messages";
 import { PromptInput } from "@/components/prompt-input";
 import { Chat } from "@/types/chat";
 import { motion } from "motion/react";
+import { PromptRequest } from "@/types/prompt";
 
 export default function Home() {
   const backsoundRef = useRef<HTMLAudioElement>(null);
   const promptRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const [model, setModel] = useState("deepseek-r1:8b");
-  const models = ["deepseek-r1:8b", "llama3.1", "llama3.2"];
+  const [model, setModel] =
+    useState<PromptRequest["model"]>("gemini-2.0-flash");
+  const models = ["llama3.2", "deepseek-r1:8b", "llama3.1", "gemini-2.0-flash"];
 
   const [chat, setChat] = useState<Chat[]>([]);
   const { sendPrompt, loading: promptLoading, response } = usePrompt();
-  const { sendSpeech, loading: speechLoading, audio } = useSynthesizeSpeech();
+  const {
+    sendSpeech,
+    loading: synthesizeLoading,
+    audio,
+  } = useSynthesizeSpeech();
 
   const handlePrompt = () => {
-    const prompt = promptRef.current?.value;
-    if (!prompt) return;
+    const question = promptRef.current?.value;
+    if (!question) return;
     promptRef.current!.value = "";
-    sendPrompt(prompt);
+    sendPrompt({ question, model });
     setChat((prev) => [
       ...prev,
-      { role: "user", message: prompt, createdAt: new Date() },
+      { role: "user", message: question, createdAt: new Date() },
     ]);
     setTimeout(
       () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -65,20 +70,15 @@ export default function Home() {
   }, [response]);
 
   return (
-    <div className="relative flex w-full flex-col items-center py-8">
-      {/* Header */}
-      <header className="bg-background fixed top-0 right-0 left-0 flex h-20 items-center gap-4 border-b px-4 shadow-xs">
-        <div className="logo relative z-20 flex items-center gap-2">
-          <Logo />
-        </div>
-
-        <div className="from-background absolute inset-0 z-10 bg-gradient-to-r via-transparent to-transparent"></div>
-        <div className="absolute inset-0 z-0 bg-[url('/image/balinese-pattern-black.svg')] bg-[length:560px] bg-repeat opacity-10 dark:bg-[url('/image/balinese-pattern-white.svg')]"></div>
-      </header>
-
+    <>
       {/* Chat */}
-      <main className="mt-20 mb-2 flex w-3xl max-w-3xl flex-col gap-4 px-4 lg:px-0">
-        <ChatMessages chat={chat} promptLoading={promptLoading} />
+      <main className="mt-20 mb-2 flex max-w-3xl flex-col gap-4 px-4 lg:px-0">
+        <ChatMessages
+          chat={chat}
+          promptLoading={promptLoading}
+          synthesizeLoading={synthesizeLoading}
+          handleSynthesizeSpeech={handleSynthesizeSpeech}
+        />
         <div ref={bottomRef} className="mb-40" />
       </main>
 
@@ -108,10 +108,6 @@ export default function Home() {
           type="audio/mpeg"
         />
       </audio>
-
-      {/* Background */}
-      <div className="fixed right-0 bottom-0 left-0 -z-10 h-1/2 bg-[url('/image/balinese-pattern-black.svg')] bg-[length:560px] bg-repeat opacity-1.5 dark:bg-[url('/image/balinese-pattern-white.svg')]" />
-      <div className="from-background fixed right-0 bottom-0 left-0 -z-10 h-1/2 bg-gradient-to-b via-transparent to-transparent" />
-    </div>
+    </>
   );
 }

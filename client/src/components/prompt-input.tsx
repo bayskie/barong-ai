@@ -9,13 +9,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Mic, Send } from "lucide-react";
+import { ChevronDown, Languages, Send, Speech } from "lucide-react";
 import clsx from "clsx";
 import { forwardRef, useState } from "react";
+import { PromptRequest } from "@/types/prompt";
+import Link from "next/link";
 
 interface PromptInputProps {
   model: string;
-  setModel: (value: string) => void;
+  setModel: (value: PromptRequest["model"]) => void;
   models: string[];
   handlePrompt: () => void;
   disabled: boolean;
@@ -57,7 +59,12 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
             <DropdownMenuContent>
               <DropdownMenuLabel>Model</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup value={model} onValueChange={setModel}>
+              <DropdownMenuRadioGroup
+                value={model}
+                onValueChange={(value: string) =>
+                  setModel(value as PromptRequest["model"])
+                }
+              >
                 {models.map((m) => (
                   <DropdownMenuRadioItem key={m} value={m}>
                     {m}
@@ -69,12 +76,24 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
 
           <div className="right flex gap-2">
             <Button
+              asChild
               size="icon"
               className="rounded-full"
-              variant="outline"
-              disabled={disabled}
+              variant="secondary"
             >
-              <Mic />
+              <Link href="/translate">
+                <Languages />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="icon"
+              className="rounded-full"
+              variant="secondary"
+            >
+              <Link href="/synthesize">
+                <Speech />
+              </Link>
             </Button>
             <Button
               size="icon"

@@ -10,7 +10,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Book } from "lucide-react";
 import { Satua } from "@/types/satua";
 
-export function RelevantDocDialog({ attachment }: { attachment: Satua }) {
+interface AttachmentDialogProps {
+  attachment: Satua;
+  synthesizeLoading: boolean;
+  handleSynthesizeSpeech: (text: string) => void;
+}
+
+export function AttachmentDialog({
+  attachment,
+  synthesizeLoading,
+  handleSynthesizeSpeech,
+}: AttachmentDialogProps) {
   const sentences = attachment.content
     .split(/(?<=[.!?])\s+/)
     .filter((s) => s.trim() !== "");
@@ -35,6 +45,9 @@ export function RelevantDocDialog({ attachment }: { attachment: Satua }) {
             <span
               className="cursor-pointer hover:bg-black/10 hover:dark:bg-white/10"
               key={i}
+              onClick={() =>
+                !synthesizeLoading && handleSynthesizeSpeech(sentence)
+              }
             >
               {sentence}
               &nbsp;

@@ -1,4 +1,4 @@
-import { PromptResponse } from "@/types/prompt";
+import { PromptRequest, PromptResponse } from "@/types/prompt";
 import { useState } from "react";
 
 export function usePrompt() {
@@ -6,7 +6,10 @@ export function usePrompt() {
   const [response, setResponse] = useState<PromptResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const sendPrompt = async (question: string) => {
+  const sendPrompt = async ({
+    question,
+    model = "deepseek-r1:8b",
+  }: PromptRequest) => {
     setLoading(true);
     setError(null);
     setResponse(null);
@@ -17,7 +20,7 @@ export function usePrompt() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, model }),
       });
 
       if (!res.ok) {

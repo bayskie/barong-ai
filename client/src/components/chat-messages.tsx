@@ -4,13 +4,19 @@ import { ChatMessageBubble } from "./chat-message-bubble";
 import { AnimatePresence, motion } from "motion/react";
 import { Chat } from "@/types/chat";
 
+interface ChatMessagesProps {
+  chat: Chat[];
+  promptLoading: boolean;
+  synthesizeLoading: boolean;
+  handleSynthesizeSpeech: (text: string) => void;
+}
+
 export function ChatMessages({
   chat,
   promptLoading,
-}: {
-  chat: Chat[];
-  promptLoading: boolean;
-}) {
+  synthesizeLoading,
+  handleSynthesizeSpeech,
+}: ChatMessagesProps) {
   return (
     <AnimatePresence initial={false}>
       {chat.map((c, i) => (
@@ -21,7 +27,11 @@ export function ChatMessages({
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.2 }}
         >
-          <ChatMessageBubble chat={c} />
+          <ChatMessageBubble
+            chat={c}
+            synthesizeLoading={synthesizeLoading}
+            handleSynthesizeSpeech={handleSynthesizeSpeech}
+          />
         </motion.div>
       ))}
 
