@@ -72,7 +72,7 @@ export default function Home() {
   return (
     <>
       {/* Chat */}
-      <main className="mt-20 mb-2 flex max-w-3xl flex-col gap-4 px-4 lg:px-0">
+      <div className="flex w-full max-w-3xl flex-col gap-4 px-4 lg:px-0">
         <ChatMessages
           chat={chat}
           promptLoading={promptLoading}
@@ -80,10 +80,10 @@ export default function Home() {
           handleSynthesizeSpeech={handleSynthesizeSpeech}
         />
         <div ref={bottomRef} className="mb-40" />
-      </main>
+      </div>
 
-      {/* Footer */}
-      <motion.footer
+      {/* Prompt */}
+      <motion.div
         initial={false}
         animate={{
           top: chat.length === 0 ? 0 : "auto",
@@ -99,7 +99,7 @@ export default function Home() {
           handlePrompt={handlePrompt}
           disabled={promptLoading}
         />
-      </motion.footer>
+      </motion.div>
 
       {/* Backsound */}
       <audio ref={backsoundRef} autoPlay loop hidden>

@@ -18,7 +18,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Theme Toggle */}
         <ThemeToggle className="fixed top-24 right-4 z-10" />
 
-        {children}
+        <main className="mt-20">{children}</main>
 
         {/* Background */}
         <div className="fixed right-0 bottom-0 left-0 -z-10 h-1/2 bg-[url('/image/balinese-pattern-violet.svg')] bg-[length:560px] bg-repeat opacity-7.5" />
